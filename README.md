@@ -1,7 +1,18 @@
 # Survival_Analysis_Prostate_cancer
 
-Project member : Rhosane, Gilles, Thao and Shirin 
+This project is part of our coursework in Survival Analysis, where our group conducted a survival analysis on prostate cancer data. The primary goal of this project is to understand the factors influencing the survival rates of prostate cancer patients and to apply statistical techniques to analyze survival times.
 
-Overview
+Objectives:
+Perform data cleaning and preprocessing on prostate cancer datasets.
+Apply Kaplan-Meier estimators to estimate survival functions.
+Use Cox proportional hazards models to identify significant predictors of survival.
+Interpret the results and draw meaningful conclusions about prostate cancer survival.
 
-This project focuses on performing a survival analysis of prostate cancer patients using various statistical methods. Survival analysis is a key aspect of medical research, helping to understand the time until the occurrence of an event, such as death or relapse, in a patient population. This project is designed as a practical exercise to apply survival analysis techniques and gain insights into the factors that influence survival rates in prostate cancer patients.
+Team Members:
+Rhosane
+Gilles
+Thao
+Shirin
+
+Acknowledgements:
+We would like to thank our instructor, Anna Freni Sterrantino for guidance throughout this project.
