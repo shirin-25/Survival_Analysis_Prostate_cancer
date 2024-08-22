@@ -147,4 +147,8 @@ plot(surv_pred, col = 1:length(age_vals), main = "Predicted Survival Curves by A
 legend("bottomleft", legend = as.character(age_vals), col = 1:length(age_vals), lty = 1)
 
 ```
+Semi-parametric Cox regression 
+```{r}
+
+```
 
