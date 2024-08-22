@@ -148,7 +148,7 @@ legend("bottomleft", legend = as.character(age_vals), col = 1:length(age_vals), 
 
 ```
 7 - Semi-parametric Cox regression 
-```{r}
+
 ```{r}
 library(ggplot2)
 library(asaur)
@@ -191,6 +191,5 @@ plot(prop2)
 cox_fit2 <- survfit(cox2)
 autoplot(cox_fit2)
 
-```
 ```
 
