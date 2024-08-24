@@ -11,10 +11,10 @@ Interpret the results and draw meaningful conclusions about prostate cancer surv
 
 Team Members:
 
-Rhosane
-Gilles
-Thao
-Shirin
+Rhosane SANTOS
+Gilles DEGUE
+Thao PHAM 
+Shirin ABOUSALIH
 
 Acknowledgements:
 We would like to thank our instructor, Anna Freni Sterrantino for guidance throughout this project and course.
