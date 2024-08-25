@@ -12,10 +12,10 @@ Interpret the results and draw meaningful conclusions about prostate cancer surv
 Summary 
 ​​
 1) Descriptive Analysis 
-2)	Summary survival statistics	3
-3)	Survival curves plots and curves comparison	3
-4)	Non-parametric estimation of survival of 1 or more groups	3
-5)	Nonparametric comparison of 2 or more groups	4
+2)	Summary survival statistics	
+3)	Survival curves plots and curves comparison	
+4)	Non-parametric estimation of survival of 1 or more groups	
+5)	Nonparametric comparison of 2 or more groups	
 6)	Semi-parametric Cox regression
 
 
