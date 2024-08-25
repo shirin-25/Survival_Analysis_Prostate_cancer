@@ -3,7 +3,7 @@ title: "R Notebook"
 output: html_notebook
 ---
 
-#7 - Semi-parametric Cox regression 
+#6 - Semi-parametric Cox regression 
 
 ```{r}
 library(ggplot2)
