@@ -4,7 +4,7 @@ author: "Shirin ABOUSALIH"
 date: "2024-08-20"
 output: pdf_document
 ---
-#3)Summary survival statistics 
+#2)Summary survival statistics 
 ```{r}
 library(asaur)
 library(survival)
@@ -50,7 +50,7 @@ summary(surv_fit)
 plot(surv_fit, main = "Overall Kaplan-Meier Survival Curve", xlab = "Time", ylab = "Survival Probability")
 
 ```
-#4) Survival curves plots and curves comparison 
+#3) Survival curves plots and curves comparison 
 ```{r}
 # Fit survival curves by 'stage'
 surv_fit_stage <- survfit(Surv(time = prostateSurvival$survTime, event = prostateSurvival$status) ~ stage, data = prostateSurvival)
