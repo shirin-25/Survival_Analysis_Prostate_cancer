@@ -188,9 +188,8 @@ plot(surv_fit_stage, col = 1:length(unique(prostateSurvival$stage)),
      main = "Survival Curves by Stage", xlab = "Time", ylab = "Survival Probability")
 legend("bottomleft", legend = levels(prostateSurvival$stage), col = 1:length(unique(prostateSurvival$stage)), lty = 1)
 
-#Log-Rank Test for Statistical Comparison
-#To statistically compare survival curves between different groups, use the log-rank test
-
+# Log-Rank Test for Statistical Comparison
+# To statistically compare survival curves between different groups, use the log-rank test
 log_rank_test_grade <- survdiff(Surv(time = prostateSurvival$survTime, event = prostateSurvival$status) ~ grade, data = prostateSurvival)
 print(log_rank_test_grade)
 
@@ -210,17 +209,38 @@ stratified_fit <- survfit(Surv(time = prostateSurvival$survTime, event = prostat
 plot(stratified_fit, col = 1:4, main = "Stratified Survival Curves by Grade and Stage", xlab = "Time (days)", ylab = "Survival Probability")
 legend("bottomleft", legend = paste(levels(prostateSurvival$grade), levels(prostateSurvival$stage)), col = 1:4, lty = 1)
 
+# Fit Kaplan-Meier survival curves stratified by 'grade'
+surv_fit_grade <- survfit(Surv(time = prostateSurvival$survTime, event = prostateSurvival$status) ~ grade, data = prostateSurvival)
+
 # Log(-log) survival curves by grade
 plot(surv_fit_grade, fun = "cloglog", col = 1:length(unique(prostateSurvival$grade)), 
      main = "Log(-log) Survival Curves by Grade", xlab = "Log(Time)", ylab = "Log(-log(Survival Probability))")
 legend("bottomleft", legend = levels(prostateSurvival$grade), col = 1:length(unique(prostateSurvival$grade)), lty = 1)
 
-# Create a plot
+# Create a plot for Weibull Survival Curves by Stage
+stages <- unique(prostateSurvival$stage)  # Ensure 'stages' is defined
+times <- seq(0, max(prostateSurvival$survTime), length.out = 100)  # Define time sequence
+
 plot(0, 0, type = "n", xlim = c(0, max(times)), ylim = c(0, 1), 
      xlab = "Time", ylab = "Survival Probability", 
      main = "Weibull Survival Curves by Stage")
 
-# Add curves for each stage
+# Check for any non-positive survival times
+any_invalid_times <- any(prostateSurvival$survTime <= 0)
+any_invalid_times
+# Filter out rows with non-positive survival times
+prostateSurvival <- prostateSurvival[prostateSurvival$survTime > 0, ]
+
+
+# Create a plot for Weibull Survival Curves by Stage
+stages <- unique(prostateSurvival$stage)  # Ensure 'stages' is defined
+times <- seq(0, max(prostateSurvival$survTime), length.out = 100)  # Define time sequence
+
+plot(0, 0, type = "n", xlim = c(0, max(times)), ylim = c(0, 1), 
+     xlab = "Time", ylab = "Survival Probability", 
+     main = "Weibull Survival Curves by Stage")
+
+# Add Weibull curves for each stage
 for (i in seq_along(stages)) {
   stage_data <- prostateSurvival[prostateSurvival$stage == stages[i], ]
   fit <- survreg(Surv(survTime, status) ~ 1, data = stage_data, dist = "weibull")
