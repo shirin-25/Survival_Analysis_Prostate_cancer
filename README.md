@@ -2,7 +2,7 @@
 
 This project is part of our coursework in Survival Analysis, where our group conducted a survival analysis on prostate cancer data. The primary goal of this project is to understand the factors influencing the survival rates of prostate cancer patients and to apply statistical techniques to analyze survival times.
 
-Objectives:
+Objectives
 
 Perform data cleaning and preprocessing on prostate cancer datasets.
 Apply Kaplan-Meier estimators to estimate survival functions.
