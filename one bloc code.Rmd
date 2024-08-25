@@ -1,0 +1,314 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+#install.packages("asaur")
+library(asaur)
+library(survival)
+library(ggplot2)
+library(ggfortify)
+```
+
+```{r}
+data("prostateSurvival")
+prostateSurvival
+```
+
+```{r}
+# View the first few rows of the dataset
+head(prostateSurvival)
+
+# See the structure of the dataset
+str(prostateSurvival)
+
+# Summarize the dataset
+summary(prostateSurvival)
+
+# Remove rows with status equal to 2
+prostateSurvival <- prostateSurvival[prostateSurvival$status != 2, ]
+
+# This dataset contains 4 categorical variables and one quantitative variable
+
+# Summarize the dataset
+summary(prostateSurvival)
+
+# status
+table_status <- table(prostateSurvival$status)
+table_status
+
+# Calculate percentages
+percentages <- prop.table(table_status) * 100
+percentages
+
+# Histogram for the 'survTime' variable
+hist(prostateSurvival$survTime, 
+     main="Histogram of Survival Time",
+     xlab="Survival Time (days)", 
+     ylab="Frequency", 
+     col="lightblue", 
+     border="black")
+
+# With density curve
+hist(prostateSurvival$survTime, 
+     main="Histogram of Survival Time with Density Curve",
+     xlab="Survival Time (days)", 
+     ylab="Frequency", 
+     col="lightblue", 
+     border="black", 
+     prob=TRUE)
+lines(density(prostateSurvival$survTime), col="red", lwd=2)
+
+table_grade <- table(prostateSurvival$grade)
+table_grade
+
+# Pie chart for 'grade'
+pie(table_grade, 
+    main="Distribution of Grades", 
+    col=rainbow(length(table_grade)),
+    labels=paste(names(table_grade), "\n", round(prop.table(table_grade) * 100, 1), "%"))
+
+table_stage <- table(prostateSurvival$stage)
+table_stage
+# Pie chart for 'stage'
+pie(table_stage, 
+    main="Distribution of Stages", 
+    col=rainbow(length(table_stage)),
+    labels=paste(names(table_stage), "\n", round(prop.table(table_stage) * 100, 1), "%"))
+
+table_ageGroup <- table(prostateSurvival$ageGroup)
+table_ageGroup
+# Pie chart for 'ageGroup'
+pie(table_ageGroup, 
+    main="Distribution of Age Groups", 
+    col=rainbow(length(table_ageGroup)),
+    labels=paste(names(table_ageGroup), "\n", round(prop.table(table_ageGroup) * 100, 1), "%"))
+
+table_status <- table(prostateSurvival$status)
+table_status
+# Pie chart for 'status'
+pie(table_status, 
+    main="Distribution of Censoring Statuses", 
+    col=c("blue", "salmon", "lightgreen"), 
+    labels=paste(names(table_status), "\n", round(prop.table(table_status) * 100, 1), "%"))
+
+# Calculate descriptive statistics for SurvTime 
+summary(prostateSurvival$survTime)
+
+# Other descriptive statistics
+mean_survTime <- mean(prostateSurvival$survTime)
+sd_survTime <- sd(prostateSurvival$survTime)
+var_survTime <- var(prostateSurvival$survTime)
+cat("Mean Survival Time: ", mean_survTime, "\n")
+cat("Standard Deviation of Survival Time: ", sd_survTime, "\n")
+cat("Variance of Survival Time: ", var_survTime, "\n")
+iqr_survTime <- IQR(prostateSurvival$survTime)
+cat("Interquartile Range of Survival Time: ", iqr_survTime, "\n")
+
+boxplot(prostateSurvival$survTime, 
+        main="Boxplot of Survival Time", 
+        ylab="Survival Time (days)", 
+        col="lightgreen")
+
+# Cross table between 'grade' and 'stage'
+table_grade_stage <- table(prostateSurvival$grade, prostateSurvival$stage)
+print(table_grade_stage)
+
+# Boxplot of Survival Time by Age Group
+boxplot(survTime ~ ageGroup, data=prostateSurvival, 
+        main="Survival Time by Age Group", 
+        xlab="Age Group", 
+        ylab="Survival Time (days)", 
+        col="lightblue")
+
+# Boxplot of Survival Time by Status
+boxplot(survTime ~ status, data=prostateSurvival, 
+        main="Survival Time by Status", 
+        xlab="status", 
+        ylab="Survival Time (days)", 
+        col="blue")
+
+# Boxplot of Survival Time by Grade
+boxplot(survTime ~ grade, data=prostateSurvival, 
+        main="Survival Time by Grade", 
+        xlab="grade", 
+        ylab="Survival Time (days)", 
+        col="green")
+
+# Boxplot of Survival Time by Stage
+boxplot(survTime ~ stage, data=prostateSurvival, 
+        main="Survival Time by Stage", 
+        xlab="stage", 
+        ylab="Survival Time (days)", 
+        col="red")
+
+pairs(prostateSurvival, col="darkorchid3")
+
+ggplot(prostateSurvival, aes(x=stage, fill=grade)) +
+  geom_bar(position="fill") +
+  labs(title="Distribution of Grade by Stage",
+       x="Stage",
+       y="Proportion",
+       fill="Grade") +
+  theme_minimal()
+
+ggplot(prostateSurvival, aes(x=ageGroup, fill=grade)) +
+  geom_bar(position="fill") +
+  labs(title="Distribution of Grade by Age Group",
+       x="Age Group",
+       y="Proportion",
+       fill="Grade") +
+  theme_minimal()
+
+```
+
+#**************************************************************************************************
+#Survival curves plot and curves comparaison
+```{r}
+# Create the survival object using the Kaplan-Meier estimator
+surv_obj <- Surv(time = prostateSurvival$survTime, event = prostateSurvival$status)
+
+# Fit a survival curve without grouping (overall summary)
+surv_fit <- survfit(surv_obj ~ 1)
+
+# Summary of the survival fit
+summary(surv_fit)
+
+# Plot the overall survival curve
+plot(surv_fit, main = "Overall Kaplan-Meier Survival Curve", xlab = "Time", ylab = "Survival Probability")
+
+# Survival curves plots and curves comparison
+
+# Fit survival curves by 'stage'
+surv_fit_stage <- survfit(Surv(time = prostateSurvival$survTime, event = prostateSurvival$status) ~ stage, data = prostateSurvival)
+
+# Plot survival curves by stage
+plot(surv_fit_stage, col = 1:length(unique(prostateSurvival$stage)), 
+     main = "Survival Curves by Stage", xlab = "Time", ylab = "Survival Probability")
+legend("bottomleft", legend = levels(prostateSurvival$stage), col = 1:length(unique(prostateSurvival$stage)), lty = 1)
+
+#Log-Rank Test for Statistical Comparison
+#To statistically compare survival curves between different groups, use the log-rank test
+
+log_rank_test_grade <- survdiff(Surv(time = prostateSurvival$survTime, event = prostateSurvival$status) ~ grade, data = prostateSurvival)
+print(log_rank_test_grade)
+
+log_rank_test_stage <- survdiff(Surv(time = prostateSurvival$survTime, event = prostateSurvival$status) ~ stage, data = prostateSurvival)
+print(log_rank_test_stage)
+
+# Cumulative hazard function using the Nelson-Aalen estimator
+cumhaz_fit <- survfit(Surv(time = prostateSurvival$survTime, event = prostateSurvival$status) ~ 1, type = "fh")
+
+# Plot the cumulative hazard function
+plot(cumhaz_fit, fun = "cumhaz", main = "Nelson-Aalen Cumulative Hazard Curve", xlab = "Time (days)", ylab = "Cumulative Hazard")
+
+# Stratified survival curves by grade and stage
+stratified_fit <- survfit(Surv(time = prostateSurvival$survTime, event = prostateSurvival$status) ~ grade + stage, data = prostateSurvival)
+
+# Plot stratified survival curves
+plot(stratified_fit, col = 1:4, main = "Stratified Survival Curves by Grade and Stage", xlab = "Time (days)", ylab = "Survival Probability")
+legend("bottomleft", legend = paste(levels(prostateSurvival$grade), levels(prostateSurvival$stage)), col = 1:4, lty = 1)
+
+# Log(-log) survival curves by grade
+plot(surv_fit_grade, fun = "cloglog", col = 1:length(unique(prostateSurvival$grade)), 
+     main = "Log(-log) Survival Curves by Grade", xlab = "Log(Time)", ylab = "Log(-log(Survival Probability))")
+legend("bottomleft", legend = levels(prostateSurvival$grade), col = 1:length(unique(prostateSurvival$grade)), lty = 1)
+
+# Create a plot
+plot(0, 0, type = "n", xlim = c(0, max(times)), ylim = c(0, 1), 
+     xlab = "Time", ylab = "Survival Probability", 
+     main = "Weibull Survival Curves by Stage")
+
+# Add curves for each stage
+for (i in seq_along(stages)) {
+  stage_data <- prostateSurvival[prostateSurvival$stage == stages[i], ]
+  fit <- survreg(Surv(survTime, status) ~ 1, data = stage_data, dist = "weibull")
+  shape <- 1 / fit$scale
+  scale <- exp(coef(fit))
+  
+  survival_prob <- pweibull(times, shape, scale, lower.tail = FALSE)
+  
+  lines(times, survival_prob, col = i)
+}
+
+legend("bottomleft", legend = stages, col = 1:length(stages), lty = 1)
+```
+
+#**************************************************************************************************
+#Nonparametric estimation of survival and comparaison of groups
+```{r}
+# Kaplan-Meyer estimator
+fit.KM <- survfit(Surv(survTime, status) ~ 1, data = prostateSurvival)
+summary(fit.KM)
+
+#Question: what is the median survival time?
+
+fit.KM
+
+#We see the probability of surviving after the diagnosis in days.
+
+plot(fit.KM, mark.time = TRUE,
+     main = "Kaplan-Meier estimator",
+     ylab = "Survival probability",
+     xlab = "time (days)")
+
+# Nelson-AAlen estimator
+#It gives the same results as the Kaplan-Meier estimator.
+
+fit.NA <- survfit(Surv(survTime, status) ~ 1, data = prostateSurvival, type = "fh")
+summary(fit.NA)
+
+fit.NA
+
+# Nonparametric comparison of three samples
+
+## Plotting the 3 curves
+
+sfit <- survfit(Surv(survTime, status) ~ stage, data = prostateSurvival)
+sfit
+
+survdiff(Surv(survTime, status) ~ stage, data = prostateSurvival)
+
+plot(sfit, col = c("black", "red"))
+
+```
+
+#**************************************************************************************************
+#semi-parametric Cox regression
+
+```{r}
+#Creation of cox model with all variables 
+cox <- coxph(Surv(survTime , status) ~ grade + stage + ageGroup , data = prostateSurvival )
+summary(cox)
+
+#Generation of the cox model survival curve
+cox_fit <- survfit(cox)
+autoplot(cox_fit)
+
+#Verification of the proportional hazard assumption hypothesis
+prop <-cox.zph(cox,transform = 'km',global = TRUE)
+#Lets print the result
+print(prop)
+plot(prop)
+#Grade and AgeGroup violate hazard assumption hypothesis
+
+#Let the model automatically determine the variables to to compare
+prop.auto <- step(cox)
+summary(prop.auto)
+print(prop.auto)
+#We can see that the model retains all variables.
+
+#Lets improving the model with model stratification
+#Creation of a Cox model with all variables among which Grade and AgeGroup are stratified
+
+cox2 <- coxph(Surv(survTime , status) ~ strata(grade) + stage + strata(ageGroup) , data = prostateSurvival )
+prop2 <-cox.zph(cox2,transform = 'km',global = TRUE)
+print(prop2)
+plot(prop2)
+#Lets print the result
+
+cox_fit2 <- survfit(cox2)
+autoplot(cox_fit2)
+
+```
