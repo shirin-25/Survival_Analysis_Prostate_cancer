@@ -9,6 +9,16 @@ Apply Kaplan-Meier estimators to estimate survival functions.
 Use Cox proportional hazards models to identify significant predictors of survival.
 Interpret the results and draw meaningful conclusions about prostate cancer survival.
 
+Summary 
+​​
+1) Descriptive Analysis 
+2)	Summary survival statistics	3
+3)	Survival curves plots and curves comparison	3
+4)	Non-parametric estimation of survival of 1 or more groups	3
+5)	Nonparametric comparison of 2 or more groups	4
+6)	Semi-parametric Cox regression
+
+
 Dataset
 
 Source : https://rdrr.io/cran/asaur/man/prostateSurvival.html
