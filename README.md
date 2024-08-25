@@ -36,7 +36,7 @@ Team Members:
 
 Rhosane SANTOS
 
-Gilles DEGUE
+Yaovi Gilles DEGUE
 
 Thao PHAM 
 
