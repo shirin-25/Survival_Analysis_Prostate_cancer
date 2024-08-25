@@ -5,85 +5,49 @@ date: "2024-08-20"
 output: pdf_document
 ---
 
-
 ```{r}
 library(asaur)
 library(survival)
+
+# Load the dataset
 data("prostateSurvival")
 
-# To view the first few rows of the dataset
+# View the first few rows of the dataset
 head(prostateSurvival)
 
-# To see the structure of the dataset
+# See the structure of the dataset
 str(prostateSurvival)
 
-# To summarize the dataset
+# Summarize the dataset
 summary(prostateSurvival)
 
 # Check the column names in the dataset
 colnames(prostateSurvival)
 
-
 # Check the unique values in the status column
 unique(prostateSurvival$status)
 
-# Recode status values that are not 0 or 1
-prostateSurvival$status <- ifelse(prostateSurvival$status %in% c(0, 1), prostateSurvival$status, NA)
+# Drop rows where status is 2
+prostateSurvival <- prostateSurvival[prostateSurvival$status != 2, ]
 
-# Alternatively, if values like 2 or 3 should be treated as censored (0)
-prostateSurvival$status <- ifelse(prostateSurvival$status == 2, 0, prostateSurvival$status)
-prostateSurvival$status <- ifelse(prostateSurvival$status == 3, 0, prostateSurvival$status)
+# Convert 'status' to a binary event indicator (1 = event, 0 = censored)
+# Here, we assume 1 indicates the event (e.g., death) and 0 indicates censoring
+prostateSurvival$status <- ifelse(prostateSurvival$status == 1, 1, 0)
 
-# Remove rows with NA in survTime or status
-prostateSurvival <- na.omit(prostateSurvival)
-
-surv_obj <- Surv(time = prostateSurvival$survTime, event = prostateSurvival$status)
-
-
-# Convert 'survTime' to numeric
+# Convert 'survTime' to numeric if it's not already
 prostateSurvival$survTime <- as.numeric(as.character(prostateSurvival$survTime))
 
-# Convert 'status' to numeric (if necessary)
-prostateSurvival$status <- as.numeric(as.character(prostateSurvival$status))
-
+# Create the survival object using the Kaplan-Meier estimator
 surv_obj <- Surv(time = prostateSurvival$survTime, event = prostateSurvival$status)
 
-```
-Using the Kaplan-Meier estimator, the median survival time for the cohort was found to be approximately 900 days. At 1 year (365 days), the survival probability was estimated to be 85%, while at 5 years (1825 days), the survival probability decreased to 45%. Out of the 14,294 patients included in the study, 65% experienced the event of interest (e.g., death), while 35% were censored, meaning they were either lost to follow-up or still alive at the end of the study period. The confidence intervals for these survival probabilities were narrow, indicating a high level of precision in the survival estimates.
-
-```{r}
 # Fit a survival curve without grouping (overall summary)
-surv_fit <- survfit(Surv(time = prostateSurvival$survTime, event = prostateSurvival$status) ~ 1)
+surv_fit <- survfit(surv_obj ~ 1)
 
 # Summary of the survival fit
 summary(surv_fit)
 
-```
-```{r}
 # Plot the overall survival curve
 plot(surv_fit, main = "Overall Kaplan-Meier Survival Curve", xlab = "Time", ylab = "Survival Probability")
-
-```
-Survival curves were generated for different cancer grades using the Kaplan-Meier method. The analysis revealed a significant difference in survival probabilities among patients with different cancer grades. For example, patients with grade 1 cancer had a 3-year survival probability of 70%, whereas patients with grade 4 cancer had a significantly lower survival probability of 30% at the same time point.
-
-Similarly, survival curves stratified by cancer stage showed distinct differences. For instance, stage 1 patients had a 5-year survival probability of 60%, compared to only 25% for stage 4 patients.
-
-The statistical comparison of these curves using the log-rank test confirmed that the differences in survival across the grades and stages are statistically significant, with a p-value of <0.001. This indicates that both cancer grade and stage are important factors influencing survival outcomes in this patient cohort.
-
-
-
-
-
-
-
-```{r}
-# Fit survival curves by 'grade'
-surv_fit_grade <- survfit(Surv(time = prostateSurvival$survTime, event = prostateSurvival$status) ~ grade, data = prostateSurvival)
-
-# Plot survival curves by grade
-plot(surv_fit_grade, col = 1:length(unique(prostateSurvival$grade)), 
-     main = "Survival Curves by Grade", xlab = "Time", ylab = "Survival Probability")
-legend("bottomleft", legend = levels(prostateSurvival$grade), col = 1:length(unique(prostateSurvival$grade)), lty = 1)
 
 ```
 ```{r}
@@ -134,6 +98,29 @@ plot(surv_fit_grade, fun = "cloglog", col = 1:length(unique(prostateSurvival$gra
 legend("bottomleft", legend = levels(prostateSurvival$grade), col = 1:length(unique(prostateSurvival$grade)), lty = 1)
 
 ```
+```{r}
+# Create a plot
+plot(0, 0, type = "n", xlim = c(0, max(times)), ylim = c(0, 1), 
+     xlab = "Time", ylab = "Survival Probability", 
+     main = "Weibull Survival Curves by Stage")
+
+# Add curves for each stage
+for (i in seq_along(stages)) {
+  stage_data <- prostateSurvival[prostateSurvival$stage == stages[i], ]
+  fit <- survreg(Surv(survTime, status) ~ 1, data = stage_data, dist = "weibull")
+  shape <- 1 / fit$scale
+  scale <- exp(coef(fit))
+  
+  survival_prob <- pweibull(times, shape, scale, lower.tail = FALSE)
+  
+  lines(times, survival_prob, col = i)
+}
+
+legend("bottomleft", legend = stages, col = 1:length(stages), lty = 1)
+
+```
+
+
 
 7 - Semi-parametric Cox regression 
 
